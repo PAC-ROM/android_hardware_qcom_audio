@@ -35,7 +35,9 @@
 #include "voice_extn.h"
 #include "sound/compress_params.h"
 #include "platform_parser.h"
+#ifndef HWDEP_CAL_DISABLED
 #include "sound/msmcal-hwdep.h"
+#endif
 
 #define SOUND_TRIGGER_DEVICE_HANDSET_MONO_LOW_POWER_ACDB_ID (100)
 
@@ -89,11 +91,13 @@
 #define AUDIO_PARAMETER_KEY_VOLUME_BOOST  "volume_boost"
 #define MAX_CAL_NAME 20
 
+#ifndef HWDEP_CAL_DISABLED
 char cal_name_info[WCD9XXX_MAX_CAL][MAX_CAL_NAME] = {
         [WCD9XXX_ANC_CAL] = "anc_cal",
         [WCD9XXX_MBHC_CAL] = "mbhc_cal",
         [WCD9XXX_MAD_CAL] = "mad_cal",
 };
+#endif
 
 enum {
 	VOICE_FEATURE_SET_DEFAULT,
@@ -342,6 +346,8 @@ static int acdb_device_table[SND_DEVICE_MAX] = {
 
 #define DEEP_BUFFER_PLATFORM_DELAY (29*1000LL)
 #define LOW_LATENCY_PLATFORM_DELAY (13*1000LL)
+
+#ifndef HWDEP_CAL_DISABLED
 static int hw_util_open(int card_no)
 {
     int fd = -1;
@@ -426,7 +432,7 @@ static void audio_hwdep_send_cal(struct platform_data *plat_data)
     if (send_codec_cal(acdb_loader_get_calibration, fd) < 0)
         ALOGE("%s: Could not send anc cal", __FUNCTION__);
 }
-
+#endif
 
 
 static void set_echo_reference(struct audio_device *adev, bool enable)
@@ -726,7 +732,9 @@ void *platform_init(struct audio_device *adev)
     /* Read one time ssr property */
     audio_extn_ssr_update_enabled();
     audio_extn_spkr_prot_init(adev);
+#ifndef HWDEP_CAL_DISABLED
     audio_hwdep_send_cal(my_data);
+#endif
     return my_data;
 }
 
